@@ -53,31 +53,31 @@ class main:
             st.image("football-manager-champion.jpg")
             buttonOpenFile = st.file_uploader("Tải file dữ liệu lên", type=["db", "csv", "xlsx"])
             st.info("Please click x to work around the cache")
-            with st.expander("Bật tắt hiển thị dữ liệu"):
-                if buttonOpenFile is not None:
-                    st.info('Dữ liệu được thêm hoàn tất')
-                    _, fileExtension = os.path.splitext(str(buttonOpenFile.name))
-                    if fileExtension in ['.xlsx', '.xls']:
-                        df = pd.read_excel(str(buttonOpenFile.name), engine='openpyxl')
-                        st.session_state.flagOpenFile = False
-                        st.session_state.flag = True
-                    elif fileExtension in ['.csv']:
-                        df = pd.read_csv(str(buttonOpenFile.name), encoding='utf-8')
-                        st.session_state.flagOpenFile = False
-                        st.session_state.flag = True
-                    else:  # for *.db file
-                        conn = self.get_connection(str(buttonOpenFile.name))
-                        self.init_db(conn)
-                        split_db_name = str(buttonOpenFile.name).split('.')
-                        db_name = split_db_name[0]
-                        df = pd.DataFrame(self.get_data(conn, db_name))
-                        st.session_state.flagOpenFile = True
-                        st.session_state.flag = True
 
-                    if st.session_state.flag:
-                        st.session_state.ssDf = df
-                else:
-                    st.warning('File dữ liệu chưa được thêm mới')
+            if buttonOpenFile is not None:
+                st.info('Dữ liệu được thêm hoàn tất')
+                _, fileExtension = os.path.splitext(str(buttonOpenFile.name))
+                if fileExtension in ['.xlsx', '.xls']:
+                    df = pd.read_excel(str(buttonOpenFile.name), engine='openpyxl')
+                    st.session_state.flagOpenFile = False
+                    st.session_state.flag = True
+                elif fileExtension in ['.csv']:
+                    df = pd.read_csv(str(buttonOpenFile.name), encoding='utf-8')
+                    st.session_state.flagOpenFile = False
+                    st.session_state.flag = True
+                else:  # for *.db file
+                    conn = self.get_connection(str(buttonOpenFile.name))
+                    self.init_db(conn)
+                    split_db_name = str(buttonOpenFile.name).split('.')
+                    db_name = split_db_name[0]
+                    df = pd.DataFrame(self.get_data(conn, db_name))
+                    st.session_state.flagOpenFile = True
+                    st.session_state.flag = True
+
+                if st.session_state.flag:
+                    st.session_state.ssDf = df
+            else:
+                st.warning('File dữ liệu chưa được thêm mới')
 
             # Input Data
             with st.expander('Hiển thị nhập dữ liệu'):
