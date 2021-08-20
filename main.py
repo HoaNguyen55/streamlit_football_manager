@@ -72,6 +72,7 @@ class main:
                         self.df = pd.DataFrame(self.get_data(conn, db_name))
                         st.session_state.flagOpenFile = True
                         st.session_state.flag = True
+                    st.info("Please click x to work around the cache")
                     if st.session_state.flag:
                         st.session_state.ssDf = self.df
                 else:
