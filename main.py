@@ -51,7 +51,7 @@ class main:
             st.title('Trang chủ')
             st.image("football-manager-champion.jpg")
             buttonOpenFile = st.file_uploader("Tải file dữ liệu lên", type=["db", "csv", "xlsx"])
-            print(buttonOpenFile)
+            st.info("Please click x to work around the cache")
             with st.expander("Bật tắt hiển thị dữ liệu"):
                 if buttonOpenFile is not None:
                     st.info('Dữ liệu được thêm hoàn tất')
@@ -72,7 +72,7 @@ class main:
                         self.df = pd.DataFrame(self.get_data(conn, db_name))
                         st.session_state.flagOpenFile = True
                         st.session_state.flag = True
-                    st.info("Please click x to work around the cache")
+
                     if st.session_state.flag:
                         st.session_state.ssDf = self.df
                 else:
