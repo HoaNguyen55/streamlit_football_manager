@@ -30,7 +30,6 @@ class main:
         self.qaOpt = ('Tìm tên cầu thủ', 'Lọc độ tuổi cầu thủ', 'Vị trí và Câu lạc bộ')
         self.saveOpt = ('Lưu Biểu Đồ', 'Lưu Dữ Liệu')
 
-        self.df = None
         if 'flagOpenFile' not in st.session_state:
             st.session_state.flagOpenFile = False
         if 'flag' not in st.session_state:
@@ -47,7 +46,9 @@ class main:
 
         # Select menu
         if choice == self.menu[0]:  # Trang chủ
-            welcome()
+            if st.session_state.flag:
+                welcome()
+                st.session_state.flag = False
             st.title('Trang chủ')
             st.image("football-manager-champion.jpg")
             buttonOpenFile = st.file_uploader("Tải file dữ liệu lên", type=["db", "csv", "xlsx"])
@@ -57,11 +58,11 @@ class main:
                     st.info('Dữ liệu được thêm hoàn tất')
                     _, fileExtension = os.path.splitext(str(buttonOpenFile.name))
                     if fileExtension in ['.xlsx', '.xls']:
-                        self.df = pd.read_excel(str(buttonOpenFile.name), engine='openpyxl')
+                        df = pd.read_excel(str(buttonOpenFile.name), engine='openpyxl')
                         st.session_state.flagOpenFile = False
                         st.session_state.flag = True
                     elif fileExtension in ['.csv']:
-                        self.df = pd.read_csv(str(buttonOpenFile.name), encoding='utf-8')
+                        df = pd.read_csv(str(buttonOpenFile.name), encoding='utf-8')
                         st.session_state.flagOpenFile = False
                         st.session_state.flag = True
                     else:  # for *.db file
@@ -69,12 +70,12 @@ class main:
                         self.init_db(conn)
                         split_db_name = str(buttonOpenFile.name).split('.')
                         db_name = split_db_name[0]
-                        self.df = pd.DataFrame(self.get_data(conn, db_name))
+                        df = pd.DataFrame(self.get_data(conn, db_name))
                         st.session_state.flagOpenFile = True
                         st.session_state.flag = True
 
                     if st.session_state.flag:
-                        st.session_state.ssDf = self.df
+                        st.session_state.ssDf = df
                 else:
                     st.warning('File dữ liệu chưa được thêm mới')
 
@@ -123,7 +124,7 @@ class main:
                 if buttonRemove:
                     st.session_state.ssDf = st.session_state.ssDf.drop(index=list(range(len(st.session_state.ssDf))))
 
-            if self.df is not None:
+            if st.session_state.flag is not None:
                 st.dataframe(st.session_state.ssDf)
 
             buttonSave = st.button('Lưu Dữ Liệu')
