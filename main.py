@@ -13,12 +13,13 @@ import plotly.graph_objects as go
 import time
 
 
-def welcome():
-    t = st.empty()
-    text = "WELCOME TO MY FIRST APPLICATION"
-    for i in range(len(text) + 1):
-        t.markdown("# %s" % text[0:i])
-        time.sleep(0.01)
+def welcome(enabled):
+    if enabled:
+        t = st.empty()
+        text = "WELCOME TO MY FIRST APPLICATION"
+        for i in range(len(text) + 1):
+            t.markdown("# %s" % text[0:i])
+            time.sleep(0.01)
 
 
 class main:
@@ -35,7 +36,7 @@ class main:
         if 'flag' not in st.session_state:
             st.session_state.flag = False
         if 'welcome' not in st.session_state:
-            st.session_state.flag = True
+            st.session_state.welcome = True
         self.home()
 
     def home(self):
@@ -46,38 +47,38 @@ class main:
 
         # Select menu
         if choice == self.menu[0]:  # Trang chủ
-            if st.session_state.flag:
-                welcome()
-                st.session_state.flag = False
+            if st.button('Welcome'):
+                st.session_state.welcome = True
+                welcome(st.session_state.welcome)
             st.title('Trang chủ')
             st.image("football-manager-champion.jpg")
             buttonOpenFile = st.file_uploader("Tải file dữ liệu lên", type=["db", "csv", "xlsx"])
             st.info("Please click x to work around the cache")
+            with st.expander("Bật tắt hiển thị dữ liệu"):
+                if buttonOpenFile is not None:
+                    st.info('Dữ liệu được thêm hoàn tất')
+                    _, fileExtension = os.path.splitext(str(buttonOpenFile.name))
+                    if fileExtension in ['.xlsx', '.xls']:
+                        df = pd.read_excel(str(buttonOpenFile.name), engine='openpyxl')
+                        st.session_state.flagOpenFile = False
+                        st.session_state.flag = True
+                    elif fileExtension in ['.csv']:
+                        df = pd.read_csv(str(buttonOpenFile.name), encoding='utf-8')
+                        st.session_state.flagOpenFile = False
+                        st.session_state.flag = True
+                    else:  # for *.db file
+                        conn = self.get_connection(str(buttonOpenFile.name))
+                        self.init_db(conn)
+                        split_db_name = str(buttonOpenFile.name).split('.')
+                        db_name = split_db_name[0]
+                        df = pd.DataFrame(self.get_data(conn, db_name))
+                        st.session_state.flagOpenFile = True
+                        st.session_state.flag = True
 
-            if buttonOpenFile is not None:
-                st.info('Dữ liệu được thêm hoàn tất')
-                _, fileExtension = os.path.splitext(str(buttonOpenFile.name))
-                if fileExtension in ['.xlsx', '.xls']:
-                    df = pd.read_excel(str(buttonOpenFile.name), engine='openpyxl')
-                    st.session_state.flagOpenFile = False
-                    st.session_state.flag = True
-                elif fileExtension in ['.csv']:
-                    df = pd.read_csv(str(buttonOpenFile.name), encoding='utf-8')
-                    st.session_state.flagOpenFile = False
-                    st.session_state.flag = True
-                else:  # for *.db file
-                    conn = self.get_connection(str(buttonOpenFile.name))
-                    self.init_db(conn)
-                    split_db_name = str(buttonOpenFile.name).split('.')
-                    db_name = split_db_name[0]
-                    df = pd.DataFrame(self.get_data(conn, db_name))
-                    st.session_state.flagOpenFile = True
-                    st.session_state.flag = True
-
-                if st.session_state.flag:
-                    st.session_state.ssDf = df
-            else:
-                st.warning('File dữ liệu chưa được thêm mới')
+                    if st.session_state.flag:
+                        st.session_state.ssDf = df
+                else:
+                    st.warning('File dữ liệu chưa được thêm mới')
 
             # Input Data
             with st.expander('Hiển thị nhập dữ liệu'):
@@ -124,7 +125,7 @@ class main:
                 if buttonRemove:
                     st.session_state.ssDf = st.session_state.ssDf.drop(index=list(range(len(st.session_state.ssDf))))
 
-            if st.session_state.flag is not None:
+            if st.checkbox('Show data info', value=False):
                 st.dataframe(st.session_state.ssDf)
 
             buttonSave = st.button('Lưu Dữ Liệu')
