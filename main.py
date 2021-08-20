@@ -53,7 +53,7 @@ class main:
             st.title('Trang chủ')
             st.image("football-manager-champion.jpg")
             buttonOpenFile = st.file_uploader("Tải file dữ liệu lên", type=["db", "csv", "xlsx"])
-            st.info("Please click x to work around the cache")
+            st.info("Please click x to work around clear the cache")
             with st.expander("Bật tắt hiển thị dữ liệu"):
                 if buttonOpenFile is not None:
                     st.info('Dữ liệu được thêm hoàn tất')
